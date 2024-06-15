@@ -1,13 +1,20 @@
-
 const pool = require('../../../config/database');
 
 export default async (req, res) => {
-  const { method } = req;
+  const { method, query: { search } } = req;
 
   switch (method) {
     case 'GET':
       try {
-        const result = await pool.query('SELECT * FROM usuario');
+        let query = 'SELECT * FROM usuario';
+        let params = [];
+        
+        if (search) {
+          query += ' WHERE email ILIKE $1 OR login ILIKE $1';
+          params.push(`%${search}%`);
+        }
+        
+        const result = await pool.query(query, params);
         res.status(200).json(result.rows);
       } catch (error) {
         res.status(500).json({ error: 'Error al obtener los usuarios' });
@@ -31,3 +38,4 @@ export default async (req, res) => {
       break;
   }
 };
+
