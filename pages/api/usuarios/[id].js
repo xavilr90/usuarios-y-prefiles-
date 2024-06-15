@@ -1,4 +1,3 @@
-
 const pool = require('../../../config/database');
 
 export default async (req, res) => {
@@ -45,8 +44,24 @@ export default async (req, res) => {
         res.status(500).json({ error: 'Error al eliminar el usuario' });
       }
       break;
+    case 'PATCH':
+      try {
+        const { nuevaContrasena } = req.body;
+        const result = await pool.query(
+          'UPDATE usuario SET contrasena = $1 WHERE id_usuario = $2 RETURNING *',
+          [nuevaContrasena, id]
+        );
+        if (result.rows.length > 0) {
+          res.status(200).json(result.rows[0]);
+        } else {
+          res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+      } catch (error) {
+        res.status(500).json({ error: 'Error al restablecer la contraseña' });
+      }
+      break;
     default:
-      res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);
+      res.setHeader('Allow', ['GET', 'PUT', 'DELETE', 'PATCH']);
       res.status(405).end(`Método ${method} no permitido`);
       break;
   }
