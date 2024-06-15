@@ -1,4 +1,4 @@
-// pages/api/perfiles/[id].js
+
 const pool = require('../../../config/database');
 
 export default async (req, res) => {
